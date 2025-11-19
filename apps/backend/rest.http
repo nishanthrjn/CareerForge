@@ -1,0 +1,13 @@
+### Create Job
+POST http://localhost:4000/api/jobs
+Content-Type: application/json
+
+{
+  "title": "Senior .NET Engineer",
+  "company": "Awesome GmbH",
+  "location": "Hamburg",
+  "jobDescription": "Test job description"
+}
+
+### Get Jobs
+GET http://localhost:4000/api/jobs

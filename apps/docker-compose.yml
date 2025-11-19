@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: cv-tailor-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cv-tailor-api
+    restart: always
+    environment:
+      # Backend config
+      PORT: 4000
+      MONGODB_URI: mongodb://mongo:27017/cv-tailor
+      CORS_ORIGIN: http://localhost:3000
+
+      # LLM provider config
+      LLM_PROVIDER: openai      # or 'gemini' / 'deepseek' when you add them
+      OPENAI_API_KEY: YOUR_OPENAI_KEY_HERE
+      GEMINI_API_KEY: YOUR_GEMINI_KEY_HERE
+      DEEPSEEK_API_KEY: YOUR_DEEPSEEK_KEY_HERE
+    depends_on:
+      - mongo
+    ports:
+      - "4000:4000"
+
+volumes:
+  mongo_data:

@@ -1,0 +1,299 @@
+1. High-Level Architecture Overview
+
+Tech choices (short justification):
+
+Frontend: Next.js (App Router) + TypeScript
+
+Better story than Vite for SEO, routing, API routes if needed, and “real world” DX.
+
+App Router encourages clean file-based routing and layouts, nice for a portfolio project.
+
+Backend: NestJS + TypeScript
+
+Nest enforces a clean, modular architecture (modules, providers, DI).
+
+Easier to showcase SOLID, layering, and testability than raw Express.
+
+API: REST
+
+Recruiters & engineers instantly understand it.
+
+Fits well with React Query on the frontend.
+
+DB: MongoDB + Mongoose
+
+Popular, easy to self-host in Docker.
+
+Schema + model layer is enough for this project; we’ll wrap it in a generic repository.
+
+Conceptual flow:
+
+User opens the app (Next.js).
+
+Frontend calls the NestJS API to:
+
+Create & list Job Applications.
+
+Edit Tailored Sections (summary, skills, experience, cover letter).
+
+Trigger AI draft generation via pluggable LLM providers.
+
+Generate LaTeX snippets for Overleaf.
+
+NestJS:
+
+Uses use case services for business logic.
+
+Uses generic repositories to talk to MongoDB.
+
+Uses an AI Strategy layer to talk to Gemini/OpenAI/DeepSeek.
+
+Uses a LaTeX Template Builder to create .tex snippets.
+
+Everything runs via Docker Compose: web (Next.js), api (NestJS), mongo.
+
+
+Textual Architecture Diagram
+
++-------------------------+             +--------------------------+
+|         Frontend        |             |          Backend         |
+|  Next.js + TS + RQ/Zod  |  HTTP/JSON  |    NestJS + TS + DI      |
+|                         +-----------> |                          |
+| Pages: /jobs, /jobs/:id |             | Modules: jobs, ai, latex |
++-------------------------+             +------------+-------------+
+                                                       |
+                                                       | Mongoose
+                                                       v
+                                             +----------------------+
+                                             |      MongoDB         |
+                                             |  JobApplication      |
+                                             |  TailoredSections    |
+                                             +----------------------+
+
+                       +---------------------------------------+
+                       |          AI Provider Layer            |
+                       |  (Strategy Pattern, pluggable)        |
+                       |                                       |
+                       |  ILLMProvider                         |
+                       |   ├─ OpenAiProvider                   |
+                       |   ├─ GeminiProvider                   |
+                       |   └─ DeepSeekProvider                 |
+                       +---------------------------------------+
+
+                       +---------------------------------------+
+                       |         LaTeX Template Builder        |
+                       | Maps domain -> ccSummary.tex, etc.    |
+                       +---------------------------------------+
+
+
+
+2. Folder Structure (Monorepo)
+
+We’ll use a simple monorepo:
+
+
+cv-cover-tailor/
+├─ apps/
+│  ├─ frontend/         # Next.js app
+│  │  ├─ app/
+│  │  │  ├─ layout.tsx
+│  │  │  ├─ page.tsx
+│  │  │  ├─ jobs/
+│  │  │  │  ├─ page.tsx           # Job list
+│  │  │  │  └─ [id]/
+│  │  │  │     ├─ page.tsx        # Job detail & editor
+│  │  │  │     └─ latex/
+│  │  │  │         └─ page.tsx    # LaTeX snippets view
+│  │  ├─ components/
+│  │  │  ├─ layouts/
+│  │  │  ├─ jobs/
+│  │  │  └─ ui/
+│  │  ├─ lib/
+│  │  │  ├─ apiClient.ts
+│  │  │  ├─ queryClient.ts
+│  │  │  └─ validation/
+│  │  ├─ hooks/
+│  │  ├─ styles/
+│  │  └─ tailwind.config.ts
+│  │
+│  └─ backend/          # NestJS app
+│     ├─ src/
+│     │  ├─ main.ts
+│     │  ├─ app.module.ts
+│     │  ├─ config/
+│     │  │  └─ configuration.ts
+│     │  ├─ common/
+│     │  │  ├─ api-response.ts    # ApiResponse<T>
+│     │  │  └─ base.repository.ts # BaseRepository<T>
+│     │  ├─ jobs/
+│     │  │  ├─ jobs.module.ts
+│     │  │  ├─ jobs.controller.ts
+│     │  │  ├─ jobs.service.ts
+│     │  │  ├─ domain/
+│     │  │  │  ├─ job-application.schema.ts
+│     │  │  │  └─ job-application.types.ts
+│     │  │  ├─ dto/
+│     │  │  │  ├─ create-job-application.dto.ts
+│     │  │  │  ├─ update-job-application.dto.ts
+│     │  │  │  └─ update-tailored-sections.dto.ts
+│     │  ├─ ai/
+│     │  │  ├─ ai.module.ts
+│     │  │  ├─ ai.service.ts      # Strategy selector
+│     │  │  ├─ llm-provider.interface.ts
+│     │  │  └─ providers/
+│     │  │     ├─ openai.provider.ts
+│     │  │     └─ gemini.provider.ts
+│     │  ├─ latex/
+│     │  │  ├─ latex.module.ts
+│     │  │  └─ latex-template.service.ts
+│     │  └─ shared/
+│     │     └─ mongo.module.ts
+│     ├─ Dockerfile
+│     └─ tsconfig.json
+│
+├─ infra/
+│  ├─ docker-compose.yml
+│  └─ env/
+│     ├─ backend.example.env
+│     └─ frontend.example.env
+│
+├─ package.json       # scripts for dev (optional)
+└─ README.md
+
+
+
+Folder explanations (backend)
+
+common/
+
+Cross-cutting utilities: ApiResponse<T>, generic BaseRepository<T>.
+
+jobs/
+
+Everything around JobApplication and tailored sections.
+
+Domain schema/types, DTOs, service (use cases), controller (HTTP adapter).
+
+ai/
+
+LLM Strategy layer with ILLMProvider and concrete providers.
+
+latex/
+
+Builder/factory that turns domain data into LaTeX .tex snippets.
+
+shared/mongo.module.ts
+
+Mongo connection, exported for reuse.
+
+Folder explanations (frontend)
+
+app/
+
+Next.js App Router routes (/jobs, /jobs/[id], /jobs/[id]/latex).
+
+components/
+
+Reusable UI building blocks, job-specific forms and tables.
+
+lib/
+
+API client (fetch/axios), React Query client, zod schemas.
+
+hooks/
+
+Custom React Query hooks (e.g., useJobApplications, useJobDetail).
+
+styles/
+
+Tailwind + global CSS.
+
+
+
+Folder creation Bash script
+
+
+Run it :
+chmod +x scaffold.sh
+./scaffold.sh
+
+
+
+Create a file scaffold.sh with this content:
+
+#!/usr/bin/env bash
+set -e
+
+ROOT=cv-cover-tailor
+
+# --- Directories ---
+
+mkdir -p $ROOT/apps/frontend/app/jobs/[id]/latex
+mkdir -p $ROOT/apps/frontend/components/{layouts,jobs,ui}
+mkdir -p $ROOT/apps/frontend/lib/validation
+mkdir -p $ROOT/apps/frontend/{hooks,styles}
+mkdir -p $ROOT/apps/backend/src/{config,common,jobs/domain,jobs/dto,ai/providers,latex,shared}
+mkdir -p $ROOT/infra/env
+
+# --- Frontend files ---
+
+touch \
+  $ROOT/apps/frontend/app/layout.tsx \
+  $ROOT/apps/frontend/app/page.tsx \
+  $ROOT/apps/frontend/app/jobs/page.tsx \
+  $ROOT/apps/frontend/app/jobs/[id]/page.tsx \
+  $ROOT/apps/frontend/app/jobs/[id]/latex/page.tsx \
+  $ROOT/apps/frontend/lib/apiClient.ts \
+  $ROOT/apps/frontend/lib/queryClient.ts \
+  $ROOT/apps/frontend/tailwind.config.ts
+
+# Optional: create placeholder index files for components/hooks/lib/styles
+touch \
+  $ROOT/apps/frontend/components/layouts/.gitkeep \
+  $ROOT/apps/frontend/components/jobs/.gitkeep \
+  $ROOT/apps/frontend/components/ui/.gitkeep \
+  $ROOT/apps/frontend/hooks/.gitkeep \
+  $ROOT/apps/frontend/styles/.gitkeep \
+  $ROOT/apps/frontend/lib/validation/.gitkeep
+
+# --- Backend files ---
+
+touch \
+  $ROOT/apps/backend/src/main.ts \
+  $ROOT/apps/backend/src/app.module.ts \
+  $ROOT/apps/backend/src/config/configuration.ts \
+  $ROOT/apps/backend/src/common/api-response.ts \
+  $ROOT/apps/backend/src/common/base.repository.ts \
+  $ROOT/apps/backend/src/jobs/jobs.module.ts \
+  $ROOT/apps/backend/src/jobs/jobs.controller.ts \
+  $ROOT/apps/backend/src/jobs/jobs.service.ts \
+  $ROOT/apps/backend/src/jobs/domain/job-application.schema.ts \
+  $ROOT/apps/backend/src/jobs/domain/job-application.types.ts \
+  $ROOT/apps/backend/src/jobs/dto/create-job-application.dto.ts \
+  $ROOT/apps/backend/src/jobs/dto/update-job-application.dto.ts \
+  $ROOT/apps/backend/src/jobs/dto/update-tailored-sections.dto.ts \
+  $ROOT/apps/backend/src/ai/ai.module.ts \
+  $ROOT/apps/backend/src/ai/ai.service.ts \
+  $ROOT/apps/backend/src/ai/llm-provider.interface.ts \
+  $ROOT/apps/backend/src/ai/providers/openai.provider.ts \
+  $ROOT/apps/backend/src/ai/providers/gemini.provider.ts \
+  $ROOT/apps/backend/src/latex/latex.module.ts \
+  $ROOT/apps/backend/src/latex/latex-template.service.ts \
+  $ROOT/apps/backend/src/shared/mongo.module.ts \
+  $ROOT/apps/backend/Dockerfile \
+  $ROOT/apps/backend/tsconfig.json
+
+# --- Infra files ---
+
+touch \
+  $ROOT/infra/docker-compose.yml \
+  $ROOT/infra/env/backend.example.env \
+  $ROOT/infra/env/frontend.example.env
+
+# --- Root files ---
+
+touch \
+  $ROOT/package.json \
+  $ROOT/README.md
+
+echo "Scaffold created under $ROOT/"
