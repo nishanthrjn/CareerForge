@@ -1,7 +1,12 @@
-// apps/frontend/components/ui/Fields.tsx
-import { TextareaHTMLAttributes, InputHTMLAttributes } from 'react';
+'use client';
+
+import {
+  TextareaHTMLAttributes,
+  InputHTMLAttributes,
+  ReactNode,
+  forwardRef,
+} from 'react';
 import clsx from 'clsx';
-import { ReactNode } from 'react';
 
 type FieldWrapperProps = {
   label: string;
@@ -27,19 +32,36 @@ type TextInputProps = InputHTMLAttributes<HTMLInputElement> & {
   className?: string;
 };
 
-export function TextInput({ className, ...rest }: TextInputProps) {
-  return <input {...rest} className={clsx('mt-1 input-field', className)} />;
-}
+// React Hook Form needs a ref → forward it to the real <input />
+export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
+  ({ className, ...rest }, ref) => {
+    return (
+      <input
+        ref={ref}
+        {...rest}
+        className={clsx('mt-1 input-field', className)}
+      />
+    );
+  },
+);
+
+TextInput.displayName = 'TextInput';
 
 type TextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
   className?: string;
 };
 
-export function TextArea({ className, ...rest }: TextAreaProps) {
-  return (
-    <textarea
-      {...rest}
-      className={clsx('mt-1 textarea-field', className)}
-    />
-  );
-}
+// Same for <textarea />
+export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
+  ({ className, ...rest }, ref) => {
+    return (
+      <textarea
+        ref={ref}
+        {...rest}
+        className={clsx('mt-1 textarea-field', className)}
+      />
+    );
+  },
+);
+
+TextArea.displayName = 'TextArea';

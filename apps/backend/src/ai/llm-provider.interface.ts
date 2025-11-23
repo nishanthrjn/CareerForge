@@ -9,7 +9,7 @@ export interface GenerateSectionParams {
   jobTitle: string;
   company: string;
   jobDescription: string;
-  sectionType: 'cvSummary' | 'cvSkills' | 'cvExperience' | 'coverLetterBody';
+  sectionType: 'summary' | 'skills' | 'experience' | 'coverLetter';
 }
 
 export interface ILLMProvider {

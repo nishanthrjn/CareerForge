@@ -4,17 +4,17 @@ import { IsOptional, IsString } from 'class-validator';
 export class UpdateTailoredSectionsDto {
   @IsOptional()
   @IsString()
-  cvSummary?: string;
+  summary?: string;
 
   @IsOptional()
   @IsString()
-  cvSkills?: string;
+  skills?: string;
 
   @IsOptional()
   @IsString()
-  cvExperience?: string;
+  experience?: string;
 
   @IsOptional()
   @IsString()
-  coverLetterBody?: string;
+  coverLetter?: string;
 }

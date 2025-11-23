@@ -19,10 +19,10 @@ export default function JobDetailPage() {
   const form = useForm<TailoredSectionsInput>({
     resolver: zodResolver(tailoredSectionsSchema),
     values: jobQuery.data?.tailoredSections ?? {
-      cvSummary: '',
-      cvSkills: '',
-      cvExperience: '',
-      coverLetterBody: '',
+      summary: '',
+      skills: '',
+      experience: '',
+      coverLetter: '',
     },
   });
 
@@ -100,7 +100,7 @@ export default function JobDetailPage() {
               <label className="font-medium">CV Summary</label>
               <button
                 type="button"
-                onClick={() => handleAiDraft('cvSummary')}
+                onClick={() => handleAiDraft('summary')}
                 className="rounded border px-2 py-0.5 text-[11px] hover:bg-slate-50"
               >
                 AI Draft
@@ -109,7 +109,7 @@ export default function JobDetailPage() {
             <textarea
               rows={6}
               className="mt-1 w-full rounded border px-2 py-1"
-              {...form.register('cvSummary')}
+              {...form.register('summary')}
             />
           </div>
 
@@ -119,7 +119,7 @@ export default function JobDetailPage() {
               <label className="font-medium">CV Skills (one per line)</label>
               <button
                 type="button"
-                onClick={() => handleAiDraft('cvSkills')}
+                onClick={() => handleAiDraft('skills')}
                 className="rounded border px-2 py-0.5 text-[11px] hover:bg-slate-50"
               >
                 AI Draft
@@ -128,7 +128,7 @@ export default function JobDetailPage() {
             <textarea
               rows={6}
               className="mt-1 w-full rounded border px-2 py-1"
-              {...form.register('cvSkills')}
+              {...form.register('skills')}
             />
           </div>
 
@@ -140,7 +140,7 @@ export default function JobDetailPage() {
               </label>
               <button
                 type="button"
-                onClick={() => handleAiDraft('cvExperience')}
+                onClick={() => handleAiDraft('experience')}
                 className="rounded border px-2 py-0.5 text-[11px] hover:bg-slate-50"
               >
                 AI Draft
@@ -149,7 +149,7 @@ export default function JobDetailPage() {
             <textarea
               rows={8}
               className="mt-1 w-full rounded border px-2 py-1"
-              {...form.register('cvExperience')}
+              {...form.register('experience')}
             />
           </div>
 
@@ -159,7 +159,7 @@ export default function JobDetailPage() {
               <label className="font-medium">Cover Letter Body</label>
               <button
                 type="button"
-                onClick={() => handleAiDraft('coverLetterBody')}
+                onClick={() => handleAiDraft('coverLetter')}
                 className="rounded border px-2 py-0.5 text-[11px] hover:bg-slate-50"
               >
                 AI Draft
@@ -168,7 +168,7 @@ export default function JobDetailPage() {
             <textarea
               rows={8}
               className="mt-1 w-full rounded border px-2 py-1"
-              {...form.register('coverLetterBody')}
+              {...form.register('coverLetter')}
             />
           </div>
 

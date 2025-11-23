@@ -23,13 +23,13 @@ export class OpenAiProvider implements ILLMProvider {
     const { jobTitle, company, jobDescription, sectionType } = params;
 
     const sectionLabelMap: Record<typeof sectionType, string> = {
-      cvSummary:
+      summary:
         'a concise 3–4 line professional summary focusing on this role',
-      cvSkills:
+      skills:
         'a bullet list of 8–12 technical skills mapped to this job description',
-      cvExperience:
+      experience:
         'a bullet list (5–8 bullets) highlighting relevant experience, quantified where possible',
-      coverLetterBody:
+      coverLetter:
         '2–3 paragraphs of a tailored cover letter body (no greeting or signature)',
     };
 

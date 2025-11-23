@@ -1,23 +1,27 @@
-// Zod schemas (for forms)
-
 // apps/frontend/lib/validation/jobSchemas.ts
 import { z } from 'zod';
 
+// Schema used when creating a job
 export const createJobSchema = z.object({
-  title: z.string().min(3),
-  company: z.string().min(2),
-  location: z.string().min(2),
-  jobDescription: z.string().min(10),
-  referenceLink: z.string().url().optional().or(z.literal('')),
+  title: z.string().min(1, 'Title is required'),
+  company: z.string().min(1, 'Company is required'),
+  location: z.string().min(1, 'Location is required'),
+  jobDescription: z.string().min(1, 'Job description is required'),
+  referenceLink: z
+    .string()
+    .url('Must be a valid URL')
+    .optional()
+    .or(z.literal('')), // allow empty string if you want
 });
 
 export type CreateJobInput = z.infer<typeof createJobSchema>;
 
+// Schema for the tailored sections (this is what your page.tsx expects)
 export const tailoredSectionsSchema = z.object({
-  cvSummary: z.string().optional(),
-  cvSkills: z.string().optional(),
-  cvExperience: z.string().optional(),
-  coverLetterBody: z.string().optional(),
+  summary: z.string().default(''),
+  skills: z.string().default(''),
+  experience: z.string().default(''),
+  coverLetter: z.string().default(''),
 });
 
 export type TailoredSectionsInput = z.infer<typeof tailoredSectionsSchema>;

@@ -32,6 +32,7 @@ export function JobCreateForm() {
       ...values,
       referenceLink: values.referenceLink || undefined,
     };
+    console.log('Submitting payload:', payload); // debug
     createJobMutation.mutate(payload, {
       onSuccess: () => form.reset(),
     });

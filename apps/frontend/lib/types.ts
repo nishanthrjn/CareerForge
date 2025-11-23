@@ -2,10 +2,10 @@
 
 // apps/frontend/lib/types.ts
 export type TailoredSections = {
-  cvSummary: string;
-  cvSkills: string;
-  cvExperience: string;
-  coverLetterBody: string;
+  summary: string;
+  skills: string;
+  experience: string;
+  coverLetter: string;
 };
 
 export type JobApplication = {

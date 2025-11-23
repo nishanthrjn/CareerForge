@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: cvtailor-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: ../apps/backend
+      dockerfile: Dockerfile
+    container_name: cvtailor-backend
+    environment:
+      # Backend config
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo:27017/cv-tailor
+      - CORS_ORIGIN=http://localhost:3000
+
+      # LLM provider config (fill with real keys)
+      - LLM_PROVIDER=openai
+      - OPENAI_API_KEY=YOUR_OPENAI_KEY_HERE
+      # - GEMINI_API_KEY=YOUR_GEMINI_KEY_HERE
+      # - DEEPSEEK_API_KEY=YOUR_DEEPSEEK_KEY_HERE
+    depends_on:
+      - mongo
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ../apps/frontend
+      dockerfile: Dockerfile
+    container_name: cvtailor-frontend
+    environment:
+      # This is what your frontend should use to call the backend from the browser
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:4000/api
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  mongo_data:

@@ -11,7 +11,7 @@ GET /api/jobs/:id – fetch job + tailored sections.
 
 PATCH /api/jobs/:id/sections – update tailored sections.
 
-POST /api/jobs/:id/ai-draft?sectionType=cvSummary – AI draft.
+POST /api/jobs/:id/ai-draft?sectionType=summary – AI draft.
 
 GET /api/jobs/:id/latex-snippets – LaTeX partials.
 */
@@ -69,10 +69,10 @@ export class JobsController {
     @Param('id') id: string,
     @Query('sectionType')
     sectionType:
-      | 'cvSummary'
-      | 'cvSkills'
-      | 'cvExperience'
-      | 'coverLetterBody',
+      | 'summary'
+      | 'skills'
+      | 'experience'
+      | 'coverLetter',
   ): Promise<ApiResponse<any>> {
     const job = await this.jobsService.generateAiDraftForSection(
       id,

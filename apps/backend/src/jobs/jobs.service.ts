@@ -27,10 +27,10 @@ export class JobsService {
       ...dto,
       status: 'draft',
       tailoredSections: {
-        cvSummary: '',
-        cvSkills: '',
-        cvExperience: '',
-        coverLetterBody: '',
+        summary: '',
+        skills: '',
+        experience: '',
+        coverLetter: '',
       },
     });
     return job.save();
@@ -62,7 +62,7 @@ export class JobsService {
 
   async generateAiDraftForSection(
     id: string,
-    sectionType: 'cvSummary' | 'cvSkills' | 'cvExperience' | 'coverLetterBody',
+    sectionType: 'summary' | 'skills' | 'experience' | 'coverLetter',
   ): Promise<JobApplicationDocument> {
     const job = await this.getJob(id);
     const draft = await this.aiService.generateSection({

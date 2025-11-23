@@ -1,0 +1,9 @@
+{
+  "name": "cv-cover-tailor-root",
+  "private": true,
+  "description": "Root config for cv-cover-tailor monorepo",
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ]
+}
