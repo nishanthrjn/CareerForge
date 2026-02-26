@@ -1,3 +1,7 @@
+
+# Secrets
+secrets/
+
 # Node + frontend + backend
 node_modules/
 dist/
