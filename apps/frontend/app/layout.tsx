@@ -4,6 +4,9 @@ import { ReactNode } from 'react';
 import { QueryProvider } from './query-provider';
 import { AppShell } from '../components/layouts/AppShell';
 import { Hero } from '../components/layouts/Hero';
+import { ThemeProvider } from './theme-provider';
+import { ThemeToggle } from '../components/ui/ThemeToggle';
+
 
 
 export const metadata = {
@@ -25,16 +28,28 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <QueryProvider>
-          <AppShell>
-            <Hero
-              title="CV & Cover Letter Tailor"
-              subtitle="Manage job applications, tailor CV sections with AI, and export LaTeX snippets for your Overleaf workflows."
-              rightSlot={<ConnectionBadge />}
-            />
-            <main className="flex-1 pb-6 md:pb-10">{children}</main>
-          </AppShell>
-        </QueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
+            <AppShell>
+              <Hero
+                title="CV & Cover Letter Tailor"
+                subtitle="Manage job applications, tailor CV sections with AI, and export LaTeX snippets for your Overleaf workflows."
+                rightSlot={
+                  <div className="flex items-center gap-4">
+                    <ThemeToggle />
+                    <ConnectionBadge />
+                  </div>
+                }
+              />
+              <main className="flex-1 pb-6 md:pb-10">{children}</main>
+            </AppShell>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
