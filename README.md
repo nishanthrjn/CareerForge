@@ -78,3 +78,62 @@ ILLMProvider
  ├─ GeminiProvider
  └─ DeepSeekProvider
 ```
+
+---
+
+## 🚀 Getting Started
+
+You can run CareerForge either using **Docker** (recommended) or **Manually** via Node.js.
+
+### Prerequisites
+- Node.js (v18 or v20+)
+- npm
+- Docker and Docker Compose (If using Docker setup)
+- MongoDB (If running manually)
+
+### Option 1: Run with Docker Compose (Recommended)
+
+This approach spins up the MongoDB database, the Next.js Frontend, and the NestJS Backend in isolated containers.
+
+1. Navigate to the `infra` directory:
+   ```bash
+   cd infra
+   ```
+2. Start the services using Docker Compose:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+**Services will be accessible at:**
+- **Frontend App**: `http://localhost:3000`
+- **Backend API**: `http://localhost:4000`
+- **MongoDB**: `localhost:27017`
+
+> *Note: By default, the `docker-compose.yml` uses the example `.env` files located in the `infra/env/` folder.*
+
+### Option 2: Run Manually (Local Dev)
+
+**1. Install Dependencies**
+At the root of the project, run:
+```bash
+npm install
+```
+
+**2. Start MongoDB**
+Ensure you have a MongoDB instance running locally on `mongodb://localhost:27017` or prepare your MongoDB URI. Create the appropriate `.env` files for the frontend and backend if necessary based on `infra/env/` examples.
+
+**3. Start the Backend API (NestJS)**
+```bash
+cd apps/backend
+npm run start:dev
+```
+*Runs on `http://localhost:4000`.*
+
+**4. Start the Frontend App (Next.js)**
+In a new terminal window:
+```bash
+cd apps/frontend
+npm run dev
+```
+*Runs on `http://localhost:3000`.*
+
