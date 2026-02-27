@@ -27,13 +27,17 @@ import {
   Query,
 } from '@nestjs/common';
 import { JobsService } from './jobs.service';
+import { SkillGapService } from './skill-gap.service';
 import { CreateJobApplicationDto } from './dto/create-job-application.dto';
 import { UpdateTailoredSectionsDto } from './dto/update-tailored-sections.dto';
 import { ApiResponse } from '../common/api-response';
 
 @Controller('jobs')
 export class JobsController {
-  constructor(private readonly jobsService: JobsService) {}
+  constructor(
+    private readonly jobsService: JobsService,
+    private readonly skillGapService: SkillGapService,
+  ) { }
 
   @Post()
   async createJob(
@@ -67,16 +71,13 @@ export class JobsController {
   @Post(':id/ai-draft')
   async aiDraft(
     @Param('id') id: string,
-    @Query('sectionType')
-    sectionType:
-      | 'summary'
-      | 'skills'
-      | 'experience'
-      | 'coverLetter',
+    @Query('sectionType') sectionType: 'summary' | 'skills' | 'experience' | 'coverLetter',
+    @Body('instructions') instructions?: string,
   ): Promise<ApiResponse<any>> {
     const job = await this.jobsService.generateAiDraftForSection(
       id,
       sectionType,
+      instructions,
     );
     return ApiResponse.ok(job);
   }

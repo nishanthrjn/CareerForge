@@ -8,7 +8,7 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy source
 COPY src ./src
@@ -26,7 +26,7 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 
 # Install only production dependencies
-RUN npm install --omit=dev
+RUN npm install --omit=dev --legacy-peer-deps
 
 ENV NODE_ENV=production
 

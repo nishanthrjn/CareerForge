@@ -9,6 +9,9 @@ import { JobsController } from './jobs.controller';
 import { JobsService } from './jobs.service';
 import { AiModule } from '../ai/ai.module';
 import { LatexModule } from '../latex/latex.module';
+import { CvModule } from '../cv/cv.module';
+import { SkillGapService } from './skill-gap.service';
+import { JobRepository } from './infrastructure/job.repository';
 
 @Module({
   imports: [
@@ -17,8 +20,10 @@ import { LatexModule } from '../latex/latex.module';
     ]),
     AiModule,
     LatexModule,
+    CvModule,
   ],
   controllers: [JobsController],
-  providers: [JobsService],
+  providers: [JobRepository, JobsService, SkillGapService],
+  exports: [JobRepository, JobsService, SkillGapService],
 })
-export class JobsModule {}
+export class JobsModule { }

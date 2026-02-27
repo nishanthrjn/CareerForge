@@ -5,7 +5,7 @@ import OpenAI from 'openai';
 export class OpenAiProvider implements ILLMProvider {
   name = 'openai';
 
-  constructor(private readonly client: OpenAI) {}
+  constructor(private readonly client: OpenAI) { }
 
   async generateSection(params: GenerateSectionParams): Promise<string> {
     const prompt = this.buildPrompt(params);
@@ -19,8 +19,18 @@ export class OpenAiProvider implements ILLMProvider {
     return completion.choices[0]?.message?.content ?? '';
   }
 
+  async generateText(prompt: string): Promise<string> {
+    const completion = await this.client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.4,
+    });
+
+    return completion.choices[0]?.message?.content ?? '';
+  }
+
   private buildPrompt(params: GenerateSectionParams): string {
-    const { jobTitle, company, jobDescription, sectionType } = params;
+    const { jobTitle, company, jobDescription, sectionType, instructions } = params;
 
     const sectionLabelMap: Record<typeof sectionType, string> = {
       summary:
@@ -33,18 +43,12 @@ export class OpenAiProvider implements ILLMProvider {
         '2–3 paragraphs of a tailored cover letter body (no greeting or signature)',
     };
 
-    return `
-You are a professional CV & cover letter writer for the European tech job market.
+    let prompt = `You are a professional CV & cover letter writer for the tech job market.\n\nTarget position: ${jobTitle} at ${company}\n\nJob description:\n---\n${jobDescription}\n---\n\nWrite ${sectionLabelMap[sectionType]}.`;
+    if (instructions) {
+      prompt += `\n\nUSER INSTRUCTIONS FOR REFINEMENT:\n${instructions}`;
+    }
+    prompt += `\n\nReturn only plain text suitable to be embedded inside a LaTeX file (no preamble).`;
 
-Target position: ${jobTitle} at ${company}
-
-Job description:
----
-${jobDescription}
----
-
-Write ${sectionLabelMap[sectionType]}.
-Return only plain text suitable to be embedded inside a LaTeX file (no preamble).
-`.trim();
+    return prompt;
   }
 }

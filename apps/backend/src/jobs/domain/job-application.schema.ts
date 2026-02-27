@@ -4,7 +4,14 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { JobStatus } from './job-application.types';
+
+export enum JobStatus {
+  NEW = 'NEW',
+  IN_PROGRESS = 'IN_PROGRESS',
+  APPLIED = 'APPLIED',
+  REJECTED = 'REJECTED',
+  OFFER = 'OFFER',
+}
 
 export type JobApplicationDocument = HydratedDocument<JobApplication>;
 
@@ -41,10 +48,28 @@ export class JobApplication {
   @Prop({ required: true })
   jobDescription!: string;
 
+  @Prop([String])
+  requiredSkills?: string[];
+
+  @Prop([String])
+  missingSkills?: string[];
+
+  @Prop()
+  referenceLink?: string;
+
+  @Prop()
+  appliedDate?: Date;
+
+  @Prop()
+  nextActionDate?: Date;
+
+  @Prop()
+  remarks?: string;
+
   @Prop({ required: true, enum: JobStatus, default: JobStatus.NEW })
   status!: JobStatus;
 
-  @Prop({ type: TailoredSectionsSchema })
+  @Prop({ type: TailoredSectionsSchema, default: () => ({}) })
   tailoredSections!: TailoredSections;
 
   @Prop()

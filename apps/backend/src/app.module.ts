@@ -8,6 +8,8 @@ import { MongoModule } from './shared/mongo.module';
 import { JobsModule } from './jobs/jobs.module';
 import { AiModule } from './ai/ai.module';
 import { LatexModule } from './latex/latex.module';
+import { CvModule } from './cv/cv.module';
+import { JobSearchModule } from './job-search/job-search.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { LatexModule } from './latex/latex.module';
     AiModule,
     LatexModule,
     JobsModule,
+    CvModule,
+    JobSearchModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

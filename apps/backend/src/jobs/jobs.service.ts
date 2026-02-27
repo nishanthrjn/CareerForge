@@ -6,26 +6,27 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   JobApplication,
   JobApplicationDocument,
+  JobStatus,
 } from './domain/job-application.schema';
 import { Model } from 'mongoose';
 import { CreateJobApplicationDto } from './dto/create-job-application.dto';
 import { UpdateTailoredSectionsDto } from './dto/update-tailored-sections.dto';
 import { AiService } from '../ai/ai.service';
 import { LatexTemplateService, LatexSnippets } from '../latex/latex-template.service';
+import { JobRepository } from './infrastructure/job.repository';
 
 @Injectable()
 export class JobsService {
   constructor(
-    @InjectModel(JobApplication.name)
-    private readonly jobModel: Model<JobApplicationDocument>,
+    private readonly jobRepo: JobRepository,
     private readonly aiService: AiService,
     private readonly latexService: LatexTemplateService,
-  ) {}
+  ) { }
 
   async createJob(dto: CreateJobApplicationDto): Promise<JobApplicationDocument> {
-    const job = new this.jobModel({
+    return this.jobRepo.create({
       ...dto,
-      status: 'draft',
+      status: JobStatus.NEW,
       tailoredSections: {
         summary: '',
         skills: '',
@@ -33,15 +34,14 @@ export class JobsService {
         coverLetter: '',
       },
     });
-    return job.save();
   }
 
   async listJobs(): Promise<JobApplicationDocument[]> {
-    return this.jobModel.find().sort({ createdAt: -1 }).exec();
+    return this.jobRepo.listJobsSorted();
   }
 
   async getJob(id: string): Promise<JobApplicationDocument> {
-    const job = await this.jobModel.findById(id).exec();
+    const job = await this.jobRepo.findById(id);
     if (!job) {
       throw new NotFoundException('JobApplication not found');
     }
@@ -57,27 +57,30 @@ export class JobsService {
       ...job.tailoredSections,
       ...dto,
     };
-    return job.save();
+    return this.jobRepo.updateById(id, { tailoredSections: job.tailoredSections }) as Promise<JobApplicationDocument>;
   }
 
   async generateAiDraftForSection(
     id: string,
     sectionType: 'summary' | 'skills' | 'experience' | 'coverLetter',
-  ): Promise<JobApplicationDocument> {
+    instructions?: string,
+  ): Promise<{ job: JobApplicationDocument; providerUsed: string }> {
     const job = await this.getJob(id);
     const draft = await this.aiService.generateSection({
       jobTitle: job.title,
       company: job.company,
       jobDescription: job.jobDescription,
       sectionType,
+      instructions,
     });
 
     job.tailoredSections = {
       ...job.tailoredSections,
-      [sectionType]: draft,
+      [sectionType]: draft.content,
     };
 
-    return job.save();
+    const updatedJob = await this.jobRepo.updateById(id, { tailoredSections: job.tailoredSections }) as JobApplicationDocument;
+    return { job: updatedJob, providerUsed: draft.providerUsed };
   }
 
   async generateLatexSnippets(id: string): Promise<LatexSnippets> {

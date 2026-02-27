@@ -10,9 +10,11 @@ export interface GenerateSectionParams {
   company: string;
   jobDescription: string;
   sectionType: 'summary' | 'skills' | 'experience' | 'coverLetter';
+  instructions?: string;
 }
 
 export interface ILLMProvider {
   name: string;
   generateSection(params: GenerateSectionParams): Promise<string>;
+  generateText(prompt: string): Promise<string>;
 }
