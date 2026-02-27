@@ -25,7 +25,7 @@ export default function DashboardPage() {
         setAnalyzingMap(prev => ({ ...prev, [jobId]: true }));
         try {
             // In a real app we'd fetch the user's profile ID from auth context. Using mock '67123abcd' for now
-            const res = await fetch(`http://localhost:3001/api/jobs/${jobId}/gap-analysis?profileId=TEST_PROFILE_ID`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api'}/jobs/${jobId}/gap-analysis?profileId=TEST_PROFILE_ID`);
             if (res.ok) {
                 alert('Analysis Complete! Refreshing...');
                 window.location.reload();

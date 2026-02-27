@@ -12,6 +12,7 @@ import { GlassCard } from '../ui/GlassCard';
 import { SectionHeader } from '../ui/SectionHeader';
 import { FieldWrapper, TextArea, TextInput } from '../ui/Fields';
 import { PrimaryButton } from '../ui/Buttons';
+import { FilePlus2, Loader2 } from 'lucide-react';
 
 export function JobCreateForm() {
   const { createJobMutation } = useJobApplications();
@@ -32,7 +33,6 @@ export function JobCreateForm() {
       ...values,
       referenceLink: values.referenceLink || undefined,
     };
-    console.log('Submitting payload:', payload); // debug
     createJobMutation.mutate(payload, {
       onSuccess: () => form.reset(),
     });
@@ -41,23 +41,26 @@ export function JobCreateForm() {
   const errors = form.formState.errors;
 
   return (
-    <GlassCard>
+    <GlassCard className="relative overflow-hidden">
+      {/* Decorative Glow */}
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-indigo-500/10 to-transparent pointer-events-none" />
+
       <SectionHeader
-        title="Add New Job"
+        title={<div className="flex items-center gap-2"><FilePlus2 className="w-5 h-5 text-indigo-300" /> Add Target Position</div>}
         subtitle="Paste the job description and basic details. You'll tailor CV sections on the next screen."
       />
 
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-3 text-xs"
+        className="space-y-5 text-sm relative z-10 p-2"
       >
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           <FieldWrapper
             label="Job Title"
             helperText={errors.title?.message}
           >
             <TextInput
-              placeholder="Senior .NET Engineer"
+              placeholder="e.g. Senior Full-Stack Engineer"
               {...form.register('title')}
             />
           </FieldWrapper>
@@ -67,19 +70,19 @@ export function JobCreateForm() {
             helperText={errors.company?.message}
           >
             <TextInput
-              placeholder="Awesome GmbH"
+              placeholder="e.g. TechCorp GmbH"
               {...form.register('company')}
             />
           </FieldWrapper>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           <FieldWrapper
-            label="Location"
+            label="Location / Model"
             helperText={errors.location?.message}
           >
             <TextInput
-              placeholder="Hamburg, Germany"
+              placeholder="e.g. Remote, Berlin"
               {...form.register('location')}
             />
           </FieldWrapper>
@@ -100,18 +103,24 @@ export function JobCreateForm() {
           helperText={errors.jobDescription?.message}
         >
           <TextArea
-            placeholder="Paste the full job description here…"
-            rows={7}
+            placeholder="Paste the full job description here. Our AI will analyze the required skills against your profile..."
+            rows={10}
+            className="md:h-64"
             {...form.register('jobDescription')}
           />
         </FieldWrapper>
 
-        <div className="flex items-center justify-end gap-3 pt-2">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/5">
           <PrimaryButton
             type="submit"
             disabled={createJobMutation.isPending}
+            className="w-full md:w-auto px-8 py-2.5"
           >
-            {createJobMutation.isPending ? 'Creating…' : 'Create Job'}
+            {createJobMutation.isPending ? (
+              <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Adding...</span>
+            ) : (
+              'Track Job'
+            )}
           </PrimaryButton>
         </div>
       </form>

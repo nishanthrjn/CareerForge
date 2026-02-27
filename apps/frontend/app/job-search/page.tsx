@@ -17,7 +17,7 @@ export default function JobSearchPage() {
 
         try {
             const qs = new URLSearchParams({ keywords, countries, roles }).toString();
-            const res = await fetch(`http://localhost:3001/api/job-search?${qs}`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api'}/job-search?${qs}`);
             const data = await res.json();
             if (data.success) {
                 setResults(data.data);
@@ -32,7 +32,7 @@ export default function JobSearchPage() {
     const handleSaveJob = async (job: any, index: number) => {
         setIsSaving(prev => ({ ...prev, [index]: true }));
         try {
-            const res = await fetch('http://localhost:3001/api/job-search/save', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api'}/job-search/save`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(job),

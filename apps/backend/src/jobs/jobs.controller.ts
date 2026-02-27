@@ -28,6 +28,7 @@ import {
 } from '@nestjs/common';
 import { JobsService } from './jobs.service';
 import { SkillGapService } from './skill-gap.service';
+import { CvService } from '../cv/cv.service';
 import { CreateJobApplicationDto } from './dto/create-job-application.dto';
 import { UpdateTailoredSectionsDto } from './dto/update-tailored-sections.dto';
 import { ApiResponse } from '../common/api-response';
@@ -37,6 +38,7 @@ export class JobsController {
   constructor(
     private readonly jobsService: JobsService,
     private readonly skillGapService: SkillGapService,
+    private readonly cvService: CvService,
   ) { }
 
   @Post()
@@ -44,6 +46,17 @@ export class JobsController {
     @Body() dto: CreateJobApplicationDto,
   ): Promise<ApiResponse<any>> {
     const job = await this.jobsService.createJob(dto);
+
+    // Auto-trigger skill gap asynchronously using a default mock profile or fetched profile
+    // Normally we would get the userId from req.user
+    this.cvService.getAllProfiles().then(profiles => {
+      if (profiles && profiles.length > 0) {
+        return this.skillGapService.analyzeGap(job._id as unknown as string, profiles[0]._id as unknown as string);
+      }
+    }).catch(err => {
+      console.log('Background Gap Analysis skipped/failed:', err.message);
+    });
+
     return ApiResponse.ok(job);
   }
 

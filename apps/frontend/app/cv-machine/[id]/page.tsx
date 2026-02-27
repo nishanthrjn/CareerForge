@@ -35,7 +35,7 @@ export default function CvMachinePage() {
         setIsGenerating(prev => ({ ...prev, [sectionType]: true }));
         try {
             const instr = instructions[sectionType];
-            const res = await fetch(`http://localhost:3001/api/jobs/${id}/ai-draft?sectionType=${sectionType}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api'}/jobs/${id}/ai-draft?sectionType=${sectionType}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ instructions: instr }),
@@ -55,7 +55,7 @@ export default function CvMachinePage() {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const res = await fetch(`http://localhost:3001/api/jobs/${id}/tailored`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api'}/jobs/${id}/tailored`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(sections)

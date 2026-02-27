@@ -15,6 +15,6 @@ import { AiModule } from '../ai/ai.module';
     ],
     controllers: [CvController],
     providers: [CvService, UserProfileRepository],
-    exports: [CvService],
+    exports: [CvService, UserProfileRepository],
 })
 export class CvModule { }

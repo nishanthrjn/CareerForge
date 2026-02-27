@@ -17,6 +17,7 @@ export type JobApplication = {
   referenceLink?: string;
   status: 'draft' | 'ready' | 'applied';
   tailoredSections: TailoredSections;
+  missingSkills?: string[];
   createdAt: string;
   updatedAt: string;
 };
